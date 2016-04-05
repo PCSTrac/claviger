@@ -99,7 +99,6 @@ def load(path):
         server.setdefault('name', server_key)
         server_name = server['name']
         server.setdefault('port', parsed_server_key.port)
-        server.setdefault('user', parsed_server_key.user)
         server.setdefault('hostname', parsed_server_key.hostname)
         server.setdefault('ssh_user', server['user'])
         server.setdefault('users', [])
