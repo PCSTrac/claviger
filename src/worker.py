@@ -60,7 +60,7 @@ def check_server_for_user(job):
 
         key = job.user['key']
         # TODO update comment/options
-        if ! ak.contains(key['key']):
+        if not ak.contains(key['key']):
             n_keys_added += 1
             ak.add(key['options'], key['keytype'], key['key'], key['comment'])
 
