@@ -63,7 +63,7 @@ class Claviger(object):
         errors_occured = False
         for ret in the_map(claviger.worker.check_server,
                 (claviger.worker.Job(server=self.cfg['servers'][server_name],
-                                    keys=self.cfg['keys'],
+                                    users=self.cfg['users'],
                                     dry_run=self.args.dry_run,
                                     no_diff=self.args.no_diff)
                          for server_name in self.cfg['servers']
