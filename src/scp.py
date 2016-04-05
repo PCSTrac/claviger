@@ -33,7 +33,7 @@ class SCPSession(object):
         self.ssh_user = ssh_user
     def _path_for(self, user):
         # TODO read passwd or use SSH session to find home
-        return os.path.join('~' + user, '.ssh', 'authorized_keys')
+        return os.path.join('~' + user, '.ssh', 'authorized_keys').replace('\\', '/')
     def _scp(self, src, trg):
         cmd = ['scp', '-B', '-P', str(self.port), src, trg]
         l.debug('executing %s', cmd)
@@ -48,7 +48,7 @@ class SCPSession(object):
             # FIXME escaping
             # TODO check for error
             self._scp('{0}@{1}:{2}'.format(self.ssh_user, self.hostname,
-                            self._path_for(user)), tempf.name)
+                            self._path_for(user)), tempf.name.replace('C:', '/c').replace('\\', '/'))
             return tempf.read()
         # TODO create .ssh if it does not exist
         # TODO check permissions
@@ -57,7 +57,7 @@ class SCPSession(object):
         with tempfile.NamedTemporaryFile() as tempf:
             tempf.write(authorized_keys)
             tempf.flush()
-            self._scp(tempf.name, '{0}@{1}:{2}'.format(self.ssh_user,
+            self._scp(tempf.name.replace('C:', '/c').replace('\\', '/'), '{0}@{1}:{2}'.format(self.ssh_user,
                             self.hostname, self._path_for(user)))
     def run(self, cmdToRun):
         cmd = ['ssh', '{0}@{1}'.format(self.ssh_user, self.hostname), cmdToRun]
@@ -65,6 +65,4 @@ class SCPSession(object):
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                                   stderr=subprocess.PIPE)
         stdout_txt, stderr_txt = [x.decode('utf-8') for x in p.communicate()]
-        if p.returncode != 0:
-            raise interpret_scp_error(p.returncode, stderr_txt, stdout_txt)
         return stdout_txt

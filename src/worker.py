@@ -37,6 +37,9 @@ def check_server(job):
                                     server['ssh_user'])
 
         # First pull the current authorized_keys
+        result = conn.run('getent passwd ' + server['user'])
+        if result == "":
+            conn.run('useradd ' + server['user'] + '; mkdir -p /home/' + server['user'] + '/.ssh; touch /home/' + server['user'] + '/.ssh/authorized_keys')
         original_raw_ak = conn.get(server['user'])
         ak = claviger.authorized_keys.parse(original_raw_ak)
 
@@ -78,9 +81,6 @@ def check_server(job):
                                 raw_ak.decode('utf-8').splitlines(True),
                                 server['name'])))
             else:
-                result = conn.run('getent passwd ' + server['user'])
-                if result == "":
-                    conn.run('useradd ' + server['user'] + '; mkdir -p /home/' + server['user'] + '/.ssh; touch /home/' + server['uesr'] + '/.ssh/authorized_keys')
                 conn.put(server['user'], raw_ak)
 
         return JobReturn(server_name=server['name'], ok=True,
