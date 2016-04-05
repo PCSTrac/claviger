@@ -15,6 +15,7 @@ import claviger.authorized_keys
 import claviger.config
 import claviger.worker
 import claviger.scp
+# import claviger.ssh
 
 import six
 import yaml
@@ -197,6 +198,10 @@ def yaml_str(s):
 
 def entrypoint():
     """ entry-point of claviger """
+    # ssh = claviger.ssh.SSH()
+    # conn = ssh.connect('toolkit.pcstrac.com', 22, 'root')
+    # print conn.run('ls')
+    # return
     return Claviger().main(sys.argv[1:])
 
 if __name__ == '__main__':
