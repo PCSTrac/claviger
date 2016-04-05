@@ -197,11 +197,7 @@ def yaml_str(s):
 
 def entrypoint():
     """ entry-point of claviger """
-    scp = claviger.scp.SCP()
-    conn = scp.connect('toolkit.pcstrac.com', 22, 'root')
-    output = conn.run('ls')
-    print(output)
-    # return Claviger().main(sys.argv[1:])
+    return Claviger().main(sys.argv[1:])
 
 if __name__ == '__main__':
     entrypoint()
