@@ -50,6 +50,7 @@ def check_server_for_user(job):
         n_keys_added = 0
         n_keys_ignored = 0
         server = job.server
+        user_name = job.user_name
         user_obj = job.user
         conn = scp.connect(server['hostname'], server['port'],
                                     server['ssh_user'])
