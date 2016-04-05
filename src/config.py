@@ -84,7 +84,7 @@ def load(path):
     users = {}
     cfg.setdefault('users', {})
     for user_name, user_obj in six.iteritems(cfg['users']):
-        entry = claviger.authorized_keys.Entry.parse(user_obj.key)
+        entry = claviger.authorized_keys.Entry.parse(user_obj['key'])
         user_obj.key = {'key': entry.key,
                    'options': entry.options,
                    'comment': entry.comment,
