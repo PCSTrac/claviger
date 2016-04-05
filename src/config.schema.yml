@@ -8,7 +8,7 @@ properties:
     additionalProperties:
       type: object
       properties:
-        key: { type: integer }
+        key: { type: string }
         uid: { type: integer }
         group: { type: string}
         additional_groups:
