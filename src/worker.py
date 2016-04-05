@@ -28,7 +28,7 @@ JobResult = collections.namedtuple('JobResult',
 
 def check_server(job):
     number_users_added = 0
-    for user_name in job.server['users']
+    for user_name in job.server['users']:
         check_server_for_user(claviger.worker.Job(server=self.cfg['servers'][server_name],
                             user_name=user_name,
                             user=job.users[user_name],
