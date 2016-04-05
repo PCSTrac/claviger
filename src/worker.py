@@ -29,11 +29,11 @@ JobResult = collections.namedtuple('JobResult',
 def check_server(job):
     number_users_added = 0
     for user_name in job.server['users']
-        claviger.worker.Job(server=self.cfg['servers'][server_name],
+        check_server_for_user(claviger.worker.Job(server=self.cfg['servers'][server_name],
                             user_name=user_name,
                             user=job.users[user_name],
                             dry_run=self.args.dry_run,
-                            no_diff=self.args.no_diff)
+                            no_diff=self.args.no_diff))
         number_users_added += 1
     return JobReturn(server_name=job.server['name'], ok=True,
                     result=JobResult(n_keys_added=number_users_added,
