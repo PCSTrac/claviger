@@ -16,6 +16,8 @@ import claviger.authorized_keys
 
 # arguments send by the main process
 Job = collections.namedtuple('Job',
+                ('server', 'users', 'dry_run', 'no_diff'))
+Job2 = collections.namedtuple('Job',
                 ('server', 'user_name', 'user', 'dry_run', 'no_diff'))
 
 # this is what we return
@@ -29,7 +31,7 @@ JobResult = collections.namedtuple('JobResult',
 def check_server(job):
     number_users_added = 0
     for user_name in job.server['users']:
-        check_server_for_user(claviger.worker.Job(server=self.cfg['servers'][server_name],
+        check_server_for_user(claviger.worker.Job2(server=self.cfg['servers'][server_name],
                             user_name=user_name,
                             user=job.users[user_name],
                             dry_run=self.args.dry_run,
