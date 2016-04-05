@@ -27,67 +27,47 @@ JobResult = collections.namedtuple('JobResult',
 # ... otherwise it is an exception
 
 def check_server(job):
+    number_users_added = 0
+    for user_name in job.server['users']
+        claviger.worker.Job(server=self.cfg['servers'][server_name],
+                            user_name=user_name,
+                            user=job.users[user_name],
+                            dry_run=self.args.dry_run,
+                            no_diff=self.args.no_diff)
+        number_users_added += 1
+    return JobReturn(server_name=job.server['name'], ok=True,
+                    result=JobResult(n_keys_added=number_users_added,
+                                     n_keys_removed=0,
+                                     n_keys_ignored=0))
+
+
+def check_server_for_user(job):
     try:
         scp = claviger.scp.SCP()
         n_keys_removed = 0
         n_keys_added = 0
         n_keys_ignored = 0
         server = job.server
+        user_obj = job.user
         conn = scp.connect(server['hostname'], server['port'],
                                     server['ssh_user'])
 
         # First make the user if they don't exist
-        print(server['group'])
-        conn.user_make_if_not_present(server['user'])
+        conn.user_make_if_not_present(user_name)
         # Then pull the current authorized_keys
-        original_raw_ak = conn.get(server['user'])
+        original_raw_ak = conn.get(user_name)
         ak = claviger.authorized_keys.parse(original_raw_ak)
 
-        # Check which keys to add
-        for key_name in server['present']:
-            key = job.keys[key_name]
-            # TODO update comment/options
-            if ak.contains(key['key']):
-                continue
-            n_keys_added += 1
-            ak.add(key['options'], key['keytype'], key['key'], key['comment'])
+        key = job.user['key']
+        # TODO update comment/options
+        if ak.contains(key['key']):
+            continue
+        n_keys_added += 1
+        ak.add(key['options'], key['keytype'], key['key'], key['comment'])
 
-        # Check which keys to remove
-        if server['keepOtherKeys']:
-            for key_name in server['absent']:
-                if not ak.contains(job.keys[key_name]['key']):
-                    continue
-                ak.remove(job.keys[key_name]['key'])
-                n_keys_removed += 1
-        allowed = {job.keys[key_name]['key']
-                        for key_name in server['present'] + server['allow']}
-
-        for entry in ak.entries:
-            if entry.key in allowed:
-                continue
-            if not server['keepOtherKeys']:
-                ak.remove(entry.key)
-                n_keys_removed += 1
-            else:
-                n_keys_ignored += 1
-
-        # Did things change?
         raw_ak = six.binary_type(ak)
-        if n_keys_added or n_keys_removed:
-            if job.dry_run:
-                if not job.no_diff:
-                    print(''.join(difflib.unified_diff(
-                                original_raw_ak.decode('utf-8').splitlines(True),
-                                raw_ak.decode('utf-8').splitlines(True),
-                                server['name'])))
-            else:
-                conn.put(server['user'], raw_ak)
-                conn.user_set_permissions(server['user'])
-
-        return JobReturn(server_name=server['name'], ok=True,
-                    result=JobResult(n_keys_added=n_keys_added,
-                                     n_keys_removed=n_keys_removed,
-                                     n_keys_ignored=n_keys_ignored))
+        conn.put(user_name, raw_ak)
+        conn.user_set_permissions(user_name)
     except claviger.scp.SCPError as e:
         return JobReturn(server_name=server['name'], ok=False, result=e)
     except Exception as e:
