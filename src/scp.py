@@ -59,12 +59,12 @@ class SCPSession(object):
             tempf.flush()
             self._scp(tempf.name, '{0}@{1}:{2}'.format(self.ssh_user,
                             self.hostname, self._path_for(user)))
-    def run(self, cmd):
-        cmd = ['ssh', '{0}@{1}'.format(self.ssh_user, self.hostname), '"' + cmd + '"']
+    def run(self, cmdToRun):
+        cmd = ['ssh', '{0}@{1}'.format(self.ssh_user, self.hostname), cmdToRun]
         l.debug('running command %s', cmd)
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                                   stderr=subprocess.PIPE)
         stdout_txt, stderr_txt = [x.decode('utf-8') for x in p.communicate()]
         if p.returncode != 0:
-            raise interpret_ssh_error(p.returncode, stderr_txt, stdout_txt)
+            raise interpret_scp_error(p.returncode, stderr_txt, stdout_txt)
         return stdout_txt
