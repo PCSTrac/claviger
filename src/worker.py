@@ -1,5 +1,5 @@
 """ Contains the code to check the authorized_keys file on a server.
-    
+
     We run several checks in parallel using the multiprocessing module.
     To avoid serialization (and other) issues, we separate the worker
     environment in this module  with the rest of the program. """
@@ -78,6 +78,9 @@ def check_server(job):
                                 raw_ak.decode('utf-8').splitlines(True),
                                 server['name'])))
             else:
+                result = conn.run('getent passwd ' + server['user'])
+                if result == "":
+                    conn.run('useradd ' + server['user'] + '; mkdir -p /home/' + server['user'] + '/.ssh; touch /home/' + server['uesr'] + '/.ssh/authorized_keys')
                 conn.put(server['user'], raw_ak)
 
         return JobReturn(server_name=server['name'], ok=True,
