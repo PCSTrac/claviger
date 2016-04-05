@@ -11,6 +11,7 @@ properties:
         key: { type: string }
         uid: { type: integer }
         group: { type: string }
+        active: { type: boolean }
         additional_groups:
           type: array
           items:
@@ -24,20 +25,12 @@ properties:
         hostname: { type: string }
         port: { type: integer }
         ssh_user: { type: string }
-        absent:
-          type: array
-          items:
-            type: string
-        present:
-          type: array
-          items:
-            type: string
-        allow:
+        users:
           type: array
           items:
             type: string
         like: { type: string }
-        keepOtherKeys: { type: boolean}
+        keepOtherKeys: { type: boolean }
       additionalProperties: false
 additionalProperties: false
 # vim: sw=2 ts=2 et
