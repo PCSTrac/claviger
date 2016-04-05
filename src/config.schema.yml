@@ -10,7 +10,7 @@ properties:
       properties:
         key: { type: string }
         uid: { type: integer }
-        group: { type: string}
+        group: { type: string }
         additional_groups:
           type: array
           items:
