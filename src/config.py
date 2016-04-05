@@ -100,7 +100,7 @@ def load(path):
         server_name = server['name']
         server.setdefault('port', parsed_server_key.port)
         server.setdefault('hostname', parsed_server_key.hostname)
-        server.setdefault('ssh_user', server['user'])
+        server.setdefault('ssh_user', 'root')
         server.setdefault('users', [])
         server.setdefault('keepOtherKeys')
         server.setdefault('like', '$default' if server_key != '$default'
