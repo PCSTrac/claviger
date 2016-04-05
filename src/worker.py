@@ -36,10 +36,9 @@ def check_server(job):
         conn = scp.connect(server['hostname'], server['port'],
                                     server['ssh_user'])
 
-        # First pull the current authorized_keys
-        result = conn.run('getent passwd ' + server['user'])
-        if result == "":
-            conn.run('useradd ' + server['user'] + '; mkdir -p /home/' + server['user'] + '/.ssh; touch /home/' + server['user'] + '/.ssh/authorized_keys')
+        # First make the user if they don't exist
+        conn.user_make_if_not_present(server['user'])
+        # Then pull the current authorized_keys
         original_raw_ak = conn.get(server['user'])
         ak = claviger.authorized_keys.parse(original_raw_ak)
 
@@ -82,6 +81,7 @@ def check_server(job):
                                 server['name'])))
             else:
                 conn.put(server['user'], raw_ak)
+                conn.user_set_permissions(server['user'])
 
         return JobReturn(server_name=server['name'], ok=True,
                     result=JobResult(n_keys_added=n_keys_added,
