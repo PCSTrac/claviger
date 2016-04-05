@@ -80,18 +80,17 @@ def load(path):
     jsonschema.validate(cfg, get_schema())
     # TODO format into pretty error message
 
-    l.debug('  - processing keys')
-    new_keys = {}
-    cfg.setdefault('keys', {})
-    for key_name, key in six.iteritems(cfg['keys']):
-        # TODO handle error
-        entry = claviger.authorized_keys.Entry.parse(key)
-        new_key = {'key': entry.key,
+    l.debug('  - processing users')
+    users = {}
+    cfg.setdefault('users', {})
+    for user_name, user_obj in six.iteritems(cfg['users']):
+        entry = claviger.authorized_keys.Entry.parse(user_obj.key)
+        user_obj.key = {'key': entry.key,
                    'options': entry.options,
                    'comment': entry.comment,
                    'keytype': entry.keytype}
-        new_keys[key_name] = new_key
-    cfg['keys'] = new_keys
+        users[user_name] = user_obj
+    cfg['users'] = users
 
     l.debug('  - processing server stanza short-hands')
     new_servers = {}
@@ -103,27 +102,14 @@ def load(path):
         server.setdefault('user', parsed_server_key.user)
         server.setdefault('hostname', parsed_server_key.hostname)
         server.setdefault('ssh_user', server['user'])
-        server.setdefault('present', [])
-        server.setdefault('absent', [])
-        server.setdefault('allow', [])
+        server.setdefault('users', [])
         server.setdefault('keepOtherKeys')
         server.setdefault('like', '$default' if server_key != '$default'
                                         else None)
         server.setdefault('abstract', parsed_server_key.abstract)
-        prabsent = frozenset(server['present']) & frozenset(server['absent'])
-        if prabsent:
-            raise ConfigurationError(
-                "Keys {0} are required to be both present and absent on {1}"
-                    .format(tuple(prabsent), server_name))
-        ablow = frozenset(server['allow']) & frozenset(server['absent'])
-        if ablow:
-            raise ConfigurationError(
-                "Keys {0} are listed allowed and absent on {1}"
-                    .format(tuple(ablow), server_name))
-        for key_name in itertools.chain(server['present'], server['absent'],
-                                        server['allow']):
-            if not key_name in cfg['keys']:
-                "Key {0} (on {1}) does not exist".format(key_name, server_name)
+        for user_name in itertools.chain(server['users']):
+            if not user_name in cfg['users']:
+                "User {0} (on {1}) does not exist".format(user_name, server_name)
         if server_name in new_servers:
             raise ConfigurationError(
                 "Duplicate server name {0}".format(server_name))
@@ -148,34 +134,19 @@ def load(path):
         source_server = cfg['servers'][target_server['like']]
 
         # First the simple attributes
-        for attr in ('port', 'user', 'hostname', 'ssh_user',
-                        'keepOtherKeys', 'uid', 'group', 'additional_groups'):
+        for attr in ('port', 'hostname', 'ssh_user', 'keepOtherKeys'):
             if attr in source_server:
                 if target_server[attr] is None:
                     target_server[attr] = source_server[attr]
 
         # Now, the present/absent/allow lists
-        for key in source_server['present']:
-            if key in target_server['absent']:
-                continue
-            if key not in target_server['present']:
-                target_server['present'].append(key)
-        for key in source_server['absent']:
-            if (key in target_server['present']
-                    or key in target_server['allow']):
-                continue
-            if key not in target_server['absent']:
-                target_server['absent'].append(key)
-        for key in source_server['allow']:
-            if key in target_server['absent']:
-                continue
-            if key not in target_server['allow']:
-                target_server['allow'].append(key)
+        for user in source_server['users']:
+            if key not in target_server['users']:
+                target_server['users'].append(user)
 
     l.debug('  - setting defaults on server stanzas')
     for server in six.itervalues(cfg['servers']):
         for attr, dflt in (('port', 22),
-                           ('user', 'root'),
                            ('keepOtherKeys', True)):
             if server[attr] is None:
                 server[attr] = dflt
