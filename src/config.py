@@ -57,7 +57,7 @@ def parse_server_key(key):
 
 def load(path):
     """ Loads the configuration file.
-    
+
         A lot of the work is done by YAML.  We validate the easy bits with
         a JSON schema. The rest by hand. """
     # TODO Cache schema and configuration file
@@ -149,7 +149,7 @@ def load(path):
 
         # First the simple attributes
         for attr in ('port', 'user', 'hostname', 'ssh_user',
-                        'keepOtherKeys'):
+                        'keepOtherKeys', 'uid', 'group', 'additional_groups'):
             if attr in source_server:
                 if target_server[attr] is None:
                     target_server[attr] = source_server[attr]
@@ -179,7 +179,7 @@ def load(path):
                            ('keepOtherKeys', True)):
             if server[attr] is None:
                 server[attr] = dflt
-        
+
     l.debug('         ... done')
 
     return cfg

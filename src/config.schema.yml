@@ -14,6 +14,19 @@ properties:
       type: object
       properties:
         name: { type: string }
+        uid: { type: integer }
+        group:
+          type: object
+          properties:
+            name: { type: string }
+            gid: { type: integer }
+        additional_groups:
+          type: array
+          items:
+            type: object
+            properties:
+              name: { type: string }
+              gid: { type: integer }
         hostname: { type: string }
         port: { type: integer }
         user: { type: string }

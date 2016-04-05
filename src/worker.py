@@ -37,6 +37,7 @@ def check_server(job):
                                     server['ssh_user'])
 
         # First make the user if they don't exist
+        print(server['group'])
         conn.user_make_if_not_present(server['user'])
         # Then pull the current authorized_keys
         original_raw_ak = conn.get(server['user'])
