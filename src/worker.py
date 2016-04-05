@@ -16,7 +16,7 @@ import claviger.authorized_keys
 
 # arguments send by the main process
 Job = collections.namedtuple('Job',
-                ('server', 'keys', 'dry_run', 'no_diff'))
+                ('server', 'user_name', 'user', 'dry_run', 'no_diff'))
 
 # this is what we return
 JobReturn = collections.namedtuple('JobReturn',
