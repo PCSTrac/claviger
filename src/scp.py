@@ -66,3 +66,23 @@ class SCPSession(object):
                                   stderr=subprocess.PIPE)
         stdout_txt, stderr_txt = [x.decode('utf-8') for x in p.communicate()]
         return stdout_txt
+
+    def user_make_if_not_present(self, user):
+        cmd = ['ssh', '{0}@{1}'.format(self.ssh_user, self.hostname), "getenv passwd " + user]
+        l.debug('running command %s', cmd)
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout_txt, stderr_txt = [x.decode('utf-8') for x in p.communicate()]
+
+        if stdout_txt == "":
+            arg = 'useradd ' + user + '; mkdir -p /home/' + user + '/.ssh; touch /home/' + user + '/.ssh/authorized_keys'
+            cmd = ['ssh', '{0}@{1}'.format(self.ssh_user, self.hostname), arg]
+            l.debug('running command %s', cmd)
+            p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            stdout_txt, stderr_txt = [x.decode('utf-8') for x in p.communicate()]
+
+    def user_set_permissions(self, user):
+        arg = "chmod 700 /home/" + user + "/.ssh; chmod 600 /home/" + user + "/.ssh/authorized_keys"
+        cmd = ['ssh', '{0}@{1}'.format(self.ssh_user, self.hostname), arg]
+        l.debug('running command %s', cmd)
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout_txt, stderr_txt = [x.decode('utf-8') for x in p.communicate()]
