@@ -44,9 +44,9 @@ class SSHSession(object):
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = [x.decode('utf-8') for x in p.communicate()]
         l.debug('Command output:')
-        l.debug('    stdout: {0}'.format(stdout)))
-        l.debug('    stderr: {0}'.format(stderr)))
-        l.debug('    return value: {0}'.format(p.returncode)))
+        l.debug('    stdout: {0}'.format(stdout))
+        l.debug('    stderr: {0}'.format(stderr))
+        l.debug('    return value: {0}'.format(p.returncode))
         return stdout, stderr, p.returncode
 
     def _scp(self, src, target):
@@ -55,9 +55,9 @@ class SSHSession(object):
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = [x.decode('utf-8') for x in p.communicate()]
         l.debug('Command output:')
-        l.debug('    stdout: {0}'.format(stdout)))
-        l.debug('    stderr: {0}'.format(stderr)))
-        l.debug('    return value: {0}'.format(p.returncode)))
+        l.debug('    stdout: {0}'.format(stdout))
+        l.debug('    stderr: {0}'.format(stderr))
+        l.debug('    return value: {0}'.format(p.returncode))
         return stdout, stderr, p.returncode
 
     def _user_exists(self, user_name):
