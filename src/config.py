@@ -5,6 +5,7 @@ import os.path
 import textwrap
 import itertools
 import collections
+from pprint import pprint
 
 import six
 import tarjan
@@ -60,16 +61,13 @@ def load(path):
     # First small fixes which the schema can't handle
     cfg.setdefault('servers', {})
     cfg['servers'].setdefault('$default', {})
-    for key in cfg['servers']:
-        if cfg['servers'][key] is None:
-            cfg['servers'][key] = dict()
+    cfg.setdefault('users', {})
 
     # Now check the schema
     jsonschema.validate(cfg, get_schema())
 
     l.debug('processing users...')
     users = {}
-    cfg.setdefault('users', {})
     for user_name, user_obj in six.iteritems(cfg['users']):
         user_obj.setdefault('uid', '')
         user_obj.setdefault('group', '')
@@ -90,6 +88,9 @@ def load(path):
     l.debug('processing server stanza short-hands...')
     new_servers = {}
     for server_key, server in six.iteritems(cfg['servers']):
+        server.setdefault('port', 22)
+        server.setdefault('ssh_user', 'root')
+        server.setdefault('users', [])
         parsed_server_key = parse_server_key(server_key)
         server.setdefault('hostname', parsed_server_key.hostname)
         server_name = server['hostname']
@@ -100,8 +101,9 @@ def load(path):
                 "User {0} (on {1}) does not exist".format(user_name, server_name)
         if server_name in new_servers:
             raise ConfigurationError("Duplicate server name {0}".format(server_name))
-        new_servers[server_name] = server
+        new_servers[server_key] = server
     cfg['servers'] = new_servers
+    pprint(new_servers)
 
     l.debug('resolving server stanza inheritance...')
     # create dependancy graph and use Tarjan's algorithm to find a possible
@@ -128,12 +130,6 @@ def load(path):
         for user in source_server['users']:
             if key not in target_server['users']:
                 target_server['users'].append(user)
-
-    l.debug('setting defaults on server stanzas...')
-    for server in six.itervalues(cfg['servers']):
-        server.setdefault('port', 22)
-        server.setdefault('ssh_user', 'root')
-        server.setdefault('users', [])
 
     l.debug('done config...')
     return cfg
