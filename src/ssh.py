@@ -85,7 +85,7 @@ class SSHSession(object):
         if returncode != 0;
             raise interpret_ssh_error(returncode, stderr, stdout)
 
-    def sync_user_attributes(self, user_name, uid, main_group, alternate_groups, enabled):
+    def sync_user_account(self, user_name, uid, main_group, alternate_groups, enabled):
         user_add_mod = 'useradd'
         if self._user_exists(user_name):
             user_add_mod = 'usermod'
@@ -108,7 +108,7 @@ class SSHSession(object):
         if returncode != 0;
             raise interpret_ssh_error(returncode, stderr, stdout)
 
-    def sync_user_keys(self, user_name, authorized_keys_file_data):
+    def sync_user_key(self, user_name, authorized_keys_file_data):
         try:
             old_auth_keys_file_data = self.get_file(self._authorized_keys_path())
         except SSHError:
