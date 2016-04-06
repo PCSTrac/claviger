@@ -85,7 +85,7 @@ class SSHSession(object):
         chown -R {0}:{1} /home/{0}/.ssh
         '''.format(user_name, user_group)
         stdout, stderr, returncode = self._ssh(cmd)
-        if returncode != 0:
+        if stderr != '':
             raise interpret_ssh_error(returncode, stderr, stdout)
 
     def sync_user_account(self, user_name, uid, main_group, additional_groups, enabled):
@@ -110,7 +110,7 @@ class SSHSession(object):
             mkdir -p /home/{5}/.ssh;
         '''.format(user_add_mod, shell, uid, main_group, alt_groups_flag, user_name)
         stdout, stderr, returncode = self._ssh(cmd)
-        if returncode != 0:
+        if stderr != '':
             raise interpret_ssh_error(returncode, stderr, stdout)
 
     def sync_user_keys(self, user_name, keys):
