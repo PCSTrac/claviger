@@ -133,9 +133,8 @@ def load(path):
 
     l.debug('setting defaults on server stanzas...')
     for server in six.itervalues(cfg['servers']):
-        for attr, dflt in (('port', 22)):
-            if server[attr] is None:
-                server[attr] = dflt
+        if server['port'] is None:
+            server['port'] = 22
 
     l.debug('done config...')
     return cfg
