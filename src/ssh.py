@@ -88,7 +88,7 @@ class SSHSession(object):
         if returncode != 0:
             raise interpret_ssh_error(returncode, stderr, stdout)
 
-    def sync_user_account(self, user_name, uid, main_group, alternate_groups, enabled):
+    def sync_user_account(self, user_name, uid, main_group, additional_groups, enabled):
         user_add_mod = 'useradd'
         if self._user_exists(user_name):
             user_add_mod = 'usermod'
@@ -99,8 +99,8 @@ class SSHSession(object):
 
         # add alt groups, if there are no alt-groups specified, then replace them with the default group (which is ignored)
         alt_groups_flag = ''
-        if len(alternate_groups) > 0:
-            for group in alternate_groups:
+        if len(additional_groups) > 0:
+            for group in additional_groups:
                 alt_groups_flag+= ' ' + group
         else:
             alt_groups_flag=' ' + main_group
