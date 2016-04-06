@@ -31,7 +31,7 @@ def sync_user_for_server(server_and_user):
         conn = ssh.connect(server['hostname'], server['port'], server['ssh_user'])
 
         # First sync the user's account and attributes
-        conn.sync_user_account(user_name, uid, main_group, alternate_groups, enabled)
+        conn.sync_user_account(user_name, uid, main_group, additional_groups, enabled)
         # Then sync their keys
         conn.sync_user_keys(user_name, keys)
         # Finally, fix permissions on the files
