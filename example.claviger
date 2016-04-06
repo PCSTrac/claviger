@@ -1,0 +1,22 @@
+users:
+  username:
+    keys:
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINYZEwjtu8w9Hsvx85TlYE95MLV9Whc3N1ajrH7+gu7A
+    uid: 5001
+    group: maingroup
+    enabled: true
+    additional_groups:
+      - addlgrp1
+      - addlgrp2
+  username2:
+    keys:
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINYZEwjtu8w9Hsvx85TlYE95MLV9Whc3N1ajrH7+gu7A
+    uid: 5002
+    group: maingroup
+    enabled: true
+servers:
+  servername.tld:
+    ssh_user: root
+    users:
+      - username
+      - username2
