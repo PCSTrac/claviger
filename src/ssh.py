@@ -66,7 +66,7 @@ class SSHSession(object):
     def get_file(self, file_path_to_get):
         with tempfile.NamedTemporaryFile() as tempf:
             stdout, stderr, returncode = self._scp('{0}@{1}:{2}'.format(self.ssh_user, self.hostname, file_path_to_get), tempf.name.replace('C:', '/c').replace('\\', '/'))
-            if returncode != 0;
+            if returncode != 0:
                 raise interpret_ssh_error(returncode, stderr, stdout)
             return tempf.read()
 
@@ -75,7 +75,7 @@ class SSHSession(object):
             tempf.write(file_data)
             tempf.flush()
             stdout, stderr, returncode = self._scp(tempf.name.replace('C:', '/c').replace('\\', '/'), '{0}@{1}:{2}'.format(self.ssh_user, self.hostname, file_path_to_put))
-            if returncode != 0;
+            if returncode != 0:
                 raise interpret_ssh_error(returncode, stderr, stdout)
 
     def set_user_permissions(self, user_name, user_group):
@@ -85,7 +85,7 @@ class SSHSession(object):
         chown -R {0}:{1} /home/{0}/.ssh
         '''.format(user_name, user_group)
         stdout, stderr, returncode = self.run(cmd)
-        if returncode != 0;
+        if returncode != 0:
             raise interpret_ssh_error(returncode, stderr, stdout)
 
     def sync_user_account(self, user_name, uid, main_group, alternate_groups, enabled):
@@ -110,7 +110,7 @@ class SSHSession(object):
             mkdir -p /home/{5}/.ssh;
         '''.format(user_add_mod, shell, uid, main_group, alt_groups_flag, user_name)
         stdout, stderr, returncode = self.run(cmd)
-        if returncode != 0;
+        if returncode != 0:
             raise interpret_ssh_error(returncode, stderr, stdout)
 
     def sync_user_key(self, user_name, keys):
