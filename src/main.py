@@ -14,7 +14,7 @@ import os
 import claviger.authorized_keys
 import claviger.config
 import claviger.worker
-import claviger.scp
+import claviger.ssh
 
 import six
 import yaml
@@ -30,8 +30,7 @@ class Claviger(object):
             extra_logging_config = {}
             if self.args.verbosity >= 2:
                 level = logging.DEBUG
-                extra_logging_config['format'] = ('%(relativeCreated)d '+
-                        '%(levelname)s %(name)s %(message)s')
+                extra_logging_config['format'] = ('%(relativeCreated)d ' + '%(levelname)s %(name)s %(message)s')
             elif self.args.verbosity == 1:
                 level = logging.INFO
             else:
@@ -55,51 +54,32 @@ class Claviger(object):
             the_map = itertools.imap
         else:
             # As check_server is iobound, threads are better than processes.
-            pool = multiprocessing.dummy.Pool(
-                            processes=self.args.parallel_connections)
+            pool = multiprocessing.dummy.Pool(processes=self.args.parallel_connections)
             the_map = pool.imap_unordered
 
         global_changes = False
         errors_occured = False
-        for ret in the_map(claviger.worker.check_server,
-                (claviger.worker.Job(server=self.cfg['servers'][server_name],
-                                    users=self.cfg['users'],
-                                    dry_run=self.args.dry_run,
-                                    no_diff=self.args.no_diff)
-                         for server_name in self.cfg['servers']
-                         if not self.cfg['servers'][server_name]['abstract'])):
-            if not ret.ok:
-                errors_occured = True
-                if isinstance(ret.result,
-                        claviger.scp.HostKeyVerificationFailed):
-                    print("{0:<40} host key verification failed".format(
-                                ret.server_name))
-                else:
-                    print("")
-                    print("{0:<40} error".format(ret.server_name))
-                    print("   {0}".format(ret.result))
-                    print("")
+        for server in self.cfg['servers']:
+            if server['abstract']:
                 continue
-            res = ret.result
-            changes = any([res.n_keys_added, res.n_keys_removed])
-            global_changes |= changes
-            l.debug('        %s: done', ret.server_name)
-            if not changes and not self.args.verbosity:
-                continue
-            print ("{0:<40} +{1:<2} -{2:<2} ?{3:<2}".format(ret.server_name,
-                            res.n_keys_added, res.n_keys_removed,
-                            res.n_keys_ignored))
-        if not global_changes and not errors_occured:
-            print('Everything is in order.')
-        elif self.args.dry_run and not errors_occured:
+            for user in server['users']:
+                for ret in the_map(claviger.worker.check_server, claviger.worker.Job(server=server, user=user)):
+                    if not ret.ok:
+                        errors_occured = True
+                        if isinstance(ret.err, claviger.scp.HostKeyVerificationFailed):
+                            print("{0:<40} host key verification failed".format(ret.server_name))
+                        else:
+                            print("")
+                            print("{0}@{1:<40} error".format(ret.user_name, ret.server_name))
+                            print("   {0}".format(ret.err))
+                            print("")
+                        continue
+                    l.debug('done with %s@%s', ret.user_name, ret.server_name)
+        if errors_occured:
             print('')
-            print("This is a dry run: no changes have been made.")
-            print("Rerun with `-f' to apply changes.")
-        elif errors_occured:
-            print('')
-            print('Checking some servers failed.  See above.')
-            if self.args.dry_run:
-                print("This is a dry run: no changes have been made.")
+            print('Syncing some servers failed.  See above.')
+        else:
+            print('Everything seemed to work fine!')
 
     def find_ssh_pubkeys(self):
         """ Searches for SSH public keys in the user's homedir.
@@ -164,11 +144,6 @@ class Claviger(object):
         parser.add_argument('--parallel-connections', '-p', metavar='N',
                                 type=int, default=8,
                     help='Number of parallel connections')
-        parser.add_argument('--apply-changes', '-f', action='store_false',
-                            dest='dry_run',
-                    help='Apply changes')
-        parser.add_argument('--no-diff', '-s', action='store_true',
-                    help='Do not show a diff during the dry run')
         self.args = parser.parse_args()
 
     def handle_uncaught_exception(self):
@@ -176,10 +151,6 @@ class Claviger(object):
         sys.stderr.write('An unexpected exception occured:\n')
         sys.stderr.write('\n    ')
         sys.stderr.write(traceback.format_exc().replace('\n', '\n    '))
-        sys.stderr.write('\n')
-        sys.stderr.write('Please report this error:\n')
-        sys.stderr.write('\n')
-        sys.stderr.write('  https://github.com/bwesterb/claviger/issues\n')
         sys.stderr.write('\n')
         sys.stderr.flush()
         return 2
