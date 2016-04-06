@@ -62,8 +62,8 @@ class Claviger(object):
         for server_name, server in six.iteritems(self.cfg['servers']):
             if server['abstract'] == True:
                 continue
-            for user in server['users']:
-                jobs.append((server, user))
+            for user_name in server['users']:
+                jobs.append((server, self.cfg['users'][user_name]))
 
         for ret in the_map(claviger.worker.sync_user_for_server, jobs):
             if not ret.ok:
