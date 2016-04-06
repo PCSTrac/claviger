@@ -37,9 +37,9 @@ def sync_user_for_server(server_and_user):
         # Finally, fix permissions on the files
         conn.set_user_permissions(user_name, main_group)
 
-        return JobReturn(server_name=server['name'], user_name=user_name, ok=True, err='')
+        return JobReturn(server_name=server['hostname'], user_name=user_name, ok=True, err='')
     except claviger.ssh.SSHError as e:
-        return JobReturn(server_name=server['name'], user_name=user_name, ok=False, err=e)
+        return JobReturn(server_name=server['hostname'], user_name=user_name, ok=False, err=e)
     except Exception as e:
         # multiprocessing does not pass the stacktrace to the parent process.
         #   ( see http://stackoverflow.com/questions/6126007 )
