@@ -74,6 +74,7 @@ def load(path):
     cfg.setdefault('users', {})
     for user_name, user_obj in six.iteritems(cfg['users']):
         user_obj.setdefault('uid', '')
+        user_obj.setdefault('group', '')
         user_obj.setdefault('additional_groups', [])
         user_obj.setdefault('enabled', True)
         for index, key in enumerate(user_obj['keys']):

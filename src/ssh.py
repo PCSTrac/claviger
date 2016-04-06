@@ -96,6 +96,9 @@ class SSHSession(object):
         if enabled == False:
             shell = '/bin/false'
 
+        if main_group == '':
+            main_group = user_name
+
         uid_flag = ''
         if uid != '':
             uid_flag = '-u {0}'.format(uid)
