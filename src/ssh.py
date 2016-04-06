@@ -115,7 +115,7 @@ class SSHSession(object):
 
     def sync_user_keys(self, user_name, keys):
         try:
-            old_auth_keys_file_data = self.get_file(self._authorized_keys_path())
+            old_auth_keys_file_data = self.get_file(self._authorized_keys_path(user_name))
         except SSHError:
             old_auth_keys_file_data = ''
 
@@ -126,4 +126,4 @@ class SSHSession(object):
         authorized_keys_file_data = six.binary_type(ak)
 
         if old_auth_keys_file_data != authorized_keys_file_data:
-            self.put_file(self._authorized_keys_path(), authorized_keys_file_data)
+            self.put_file(self._authorized_keys_path(user_name), authorized_keys_file_data)
