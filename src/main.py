@@ -76,7 +76,7 @@ class Claviger(object):
                     print("   {0}".format(ret.err))
                     print("")
                 continue
-            l.debug('done with %s@%s', ret.user_name, ret.server_name)
+            print('done with {0}@{1}'.format(ret.user_name, ret.server_name))
         if errors_occured:
             print('')
             print('Syncing some servers failed.  See above.')
