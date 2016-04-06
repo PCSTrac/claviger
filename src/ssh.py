@@ -96,8 +96,9 @@ class SSHSession(object):
         if enabled == False:
             shell = '/bin/false'
 
-        if main_group == '':
-            main_group = user_name
+        main_group_flag = ''
+        if main_group != '':
+            main_group_flag = '-g {0}'.format(main_group)
 
         uid_flag = ''
         if uid != '':
@@ -106,15 +107,16 @@ class SSHSession(object):
         # add alt groups, if there are no alt-groups specified, then replace them with the default group (which is ignored)
         alt_groups_flag = ''
         if len(additional_groups) > 0:
+            alt_groups_flag = '-G'
             for group in additional_groups:
                 alt_groups_flag+= ' ' + group
-        else:
-            alt_groups_flag=' ' + main_group
+        elif main_group != '':
+            alt_groups_flag = '-G ' + main_group
 
         cmd = '''
-            {0} -s {1} {2} -g {3} -G{4} {5};
+            {0} -s {1} {2} {3} {4} {5};
             mkdir -p /home/{5}/.ssh;
-        '''.format(user_add_mod, shell, uid_flag, main_group, alt_groups_flag, user_name)
+        '''.format(user_add_mod, shell, uid_flag, main_group_flag, alt_groups_flag, user_name)
         stdout, stderr, returncode = self._ssh(cmd)
         if stderr != '':
             raise interpret_ssh_error(returncode, stderr, stdout)
