@@ -1,6 +1,7 @@
 import demandimport
 demandimport.enable()
 
+from random import shuffle
 import multiprocessing.dummy
 import itertools
 import traceback
@@ -65,6 +66,7 @@ class Claviger(object):
             for user_name in server['users']:
                 jobs.append((server, self.cfg['users'][user_name]))
 
+        shuffle(jobs)
         for ret in the_map(claviger.worker.sync_user_for_server, jobs):
             if not ret.ok:
                 errors_occured = True
