@@ -11,7 +11,7 @@ properties:
         key: { type: string }
         uid: { type: integer }
         group: { type: string }
-        active: { type: boolean }
+        enabled: { type: boolean }
         additional_groups:
           type: array
           items:
