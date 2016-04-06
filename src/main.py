@@ -63,7 +63,7 @@ class Claviger(object):
             if server['abstract'] == True:
                 continue
             for user in server['users']:
-                for ret in the_map(claviger.worker.check_server, claviger.worker.Job(server=server, user=user)):
+                for ret in the_map(claviger.worker.sync_user_for_server, claviger.worker.Job(server=server, user=user)):
                     if not ret.ok:
                         errors_occured = True
                         if isinstance(ret.err, claviger.scp.HostKeyVerificationFailed):

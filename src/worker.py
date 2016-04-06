@@ -47,18 +47,3 @@ def sync_user_for_server(job):
         #   ( see http://stackoverflow.com/questions/6126007 )
         # Thus we force the stacktrace in the message.
         raise Exception(''.join(traceback.format_exception(*sys.exc_info())))
-
-
-def check_server(job):
-    number_users_added = 0
-    for user_name in job.server['users']:
-        check_server_for_user(claviger.worker.Job2(server=job.server,
-                            user_name=user_name,
-                            user=job.users[user_name],
-                            dry_run=job.dry_run,
-                            no_diff=job.no_diff))
-        number_users_added += 1
-    return JobReturn(server_name=job.server['name'], ok=True,
-                    result=JobResult(n_keys_added=number_users_added,
-                                     n_keys_removed=0,
-                                     n_keys_ignored=0))
