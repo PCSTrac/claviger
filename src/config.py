@@ -73,6 +73,8 @@ def load(path):
     users = {}
     cfg.setdefault('users', {})
     for user_name, user_obj in six.iteritems(cfg['users']):
+        user_obj.setdefault('additional_groups', [])
+        user_obj.setdefault('enabled', True)
         for index, key in enumerate(user_obj['keys']):
             config_key_string = claviger.authorized_keys.Entry.parse(user_obj['keys'][index])
             user_obj['keys'][index] = {
