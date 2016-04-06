@@ -67,19 +67,15 @@ class SSHSession(object):
         return self._ssh("getent passwd " + user_name)[2] == 0
 
     def get_file(self, file_path_to_get):
-        with tempfile.NamedTemporaryFile() as tempf:
-            stdout, stderr, returncode = self._scp('{0}@{1}:{2}'.format(self.ssh_user, self.hostname, file_path_to_get), self._fix_path_for_windows(tempf.name))
-            if returncode != 0:
-                raise interpret_ssh_error(returncode, stderr, stdout)
-            return tempf.read()
+        stdout, stderr, returncode = self._ssh('sudo cat {0}'.format(file_path_to_get))
+        if stderr != '':
+            raise interpret_ssh_error(returncode, stderr, stdout)
+        return stdout
 
     def put_file(self, file_path_to_put, file_data):
-        with tempfile.NamedTemporaryFile() as tempf:
-            tempf.write(file_data)
-            tempf.flush()
-            stdout, stderr, returncode = self._scp(self._fix_path_for_windows(tempf.name), '{0}@{1}:{2}'.format(self.ssh_user, self.hostname, file_path_to_put))
-            if returncode != 0:
-                raise interpret_ssh_error(returncode, stderr, stdout)
+        stdout, stderr, returncode = self._ssh('sudo echo {0} > {1}'.format(file_data, file_path_to_put))
+        if stderr != '':
+            raise interpret_ssh_error(returncode, stderr, stdout)
 
     def set_user_permissions(self, user_name, user_group):
         cmd = '''
