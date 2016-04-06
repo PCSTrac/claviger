@@ -35,7 +35,7 @@ def sync_user_for_server(server_and_user):
         # Then sync their keys
         conn.sync_user_keys(user_name, keys)
         # Finally, fix permissions on the files
-        conn.user_set_permissions(user_name)
+        conn.set_user_permissions(user_name)
 
         return JobReturn(server_name=server['name'], user_name=user_name, ok=True, err='')
     except claviger.ssh.SSHError as e:
