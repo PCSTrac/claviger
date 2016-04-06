@@ -73,7 +73,7 @@ class SSHSession(object):
         return stdout
 
     def put_file(self, file_path_to_put, file_data):
-        stdout, stderr, returncode = self._ssh('sudo echo {0} > {1}'.format(file_data, file_path_to_put))
+        stdout, stderr, returncode = self._ssh('sudo echo "{0}" > {1}'.format(file_data, file_path_to_put))
         if stderr != '':
             raise interpret_ssh_error(returncode, stderr, stdout)
 
