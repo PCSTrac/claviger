@@ -113,7 +113,7 @@ class SSHSession(object):
         if returncode != 0:
             raise interpret_ssh_error(returncode, stderr, stdout)
 
-    def sync_user_key(self, user_name, keys):
+    def sync_user_keys(self, user_name, keys):
         try:
             old_auth_keys_file_data = self.get_file(self._authorized_keys_path())
         except SSHError:
