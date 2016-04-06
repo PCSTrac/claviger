@@ -8,7 +8,10 @@ properties:
     additionalProperties:
       type: object
       properties:
-        key: { type: string }
+        keys:
+          type: array
+          items:
+            type: string
         uid: { type: integer }
         group: { type: string }
         enabled: { type: boolean }
