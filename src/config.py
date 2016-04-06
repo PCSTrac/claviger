@@ -73,13 +73,14 @@ def load(path):
     users = {}
     cfg.setdefault('users', {})
     for user_name, user_obj in six.iteritems(cfg['users']):
-        config_key_string = claviger.authorized_keys.Entry.parse(user_obj['key'])
-        user_obj['key'] = {
-            'key': config_key_string.key,
-            'options': config_key_string.options,
-            'comment': config_key_string.comment,
-            'keytype': config_key_string.keytype
-        }
+        for index, key in enumerate(user_obj['keys']):
+            config_key_string = claviger.authorized_keys.Entry.parse(user_obj['keys'][index])
+            user_obj['keys'][index] = {
+                'key': config_key_string.key,
+                'options': config_key_string.options,
+                'comment': config_key_string.comment,
+                'keytype': config_key_string.keytype
+            }
         user_obj['name'] = user_name
         users[user_name] = user_obj
     cfg['users'] = users
