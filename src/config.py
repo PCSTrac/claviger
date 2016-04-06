@@ -15,7 +15,7 @@ import claviger.authorized_keys
 class ConfigError(Exception):
     pass
 
-ParsedServerKey = collections.namedtuple('ParsedServerKey', ('hostname', 'user', 'port', 'abstract'))
+ParsedServerKey = collections.namedtuple('ParsedServerKey', ('hostname', 'abstract'))
 
 l = logging.getLogger(__name__)
 
@@ -35,16 +35,14 @@ class ConfigurationError(Exception):
     pass
 
 def parse_server_key(key):
-    """ Converts a server key like localhost to a triplet (user, port, hostname, abstract) """
-    port = None
-    user = None
+    """ Converts a server key like localhost to a tuple (hostname, abstract) """
     abstract = False
     hostname = None
     if key.startswith('$'):
         abstract = True
     else:
         hostname = key
-    return ParsedServerKey(user=user, port=port, hostname=hostname, abstract=abstract)
+    return ParsedServerKey(hostname=hostname, abstract=abstract)
 
 def load(path):
     """ Loads the configuration file.
@@ -93,12 +91,8 @@ def load(path):
     new_servers = {}
     for server_key, server in six.iteritems(cfg['servers']):
         parsed_server_key = parse_server_key(server_key)
-        server.setdefault('name', server_key)
-        server_name = server['name']
-        server.setdefault('port', parsed_server_key.port)
         server.setdefault('hostname', parsed_server_key.hostname)
-        server.setdefault('ssh_user', 'root')
-        server.setdefault('users', [])
+        server_name = server['hostname']
         server.setdefault('like', '$default' if server_key != '$default' else None)
         server.setdefault('abstract', parsed_server_key.abstract)
         for user_name in itertools.chain(server['users']):
@@ -137,8 +131,9 @@ def load(path):
 
     l.debug('setting defaults on server stanzas...')
     for server in six.itervalues(cfg['servers']):
-        if server['port'] is None:
-            server['port'] = 22
+        server.setdefault('port', 22)
+        server.setdefault('ssh_user', 'root')
+        server.setdefault('users', [])
 
     l.debug('done config...')
     return cfg
