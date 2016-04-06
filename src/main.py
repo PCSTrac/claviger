@@ -57,25 +57,26 @@ class Claviger(object):
             pool = multiprocessing.dummy.Pool(processes=self.args.parallel_connections)
             the_map = pool.imap_unordered
 
-        global_changes = False
         errors_occured = False
+        jobs = []
         for server_name, server in six.iteritems(self.cfg['servers']):
             if server['abstract'] == True:
                 continue
-            print(server['name'])
             for user in server['users']:
-                for ret in the_map(claviger.worker.sync_user_for_server, *(server, user)):
-                    if not ret.ok:
-                        errors_occured = True
-                        if isinstance(ret.err, claviger.scp.HostKeyVerificationFailed):
-                            print("{0:<40} host key verification failed".format(ret.server_name))
-                        else:
-                            print("")
-                            print("{0}@{1:<40} error".format(ret.user_name, ret.server_name))
-                            print("   {0}".format(ret.err))
-                            print("")
-                        continue
-                    l.debug('done with %s@%s', ret.user_name, ret.server_name)
+                jobs.append((server, user))
+
+        for ret in the_map(claviger.worker.sync_user_for_server, jobs):
+            if not ret.ok:
+                errors_occured = True
+                if isinstance(ret.err, claviger.scp.HostKeyVerificationFailed):
+                    print("{0:<40} host key verification failed".format(ret.server_name))
+                else:
+                    print("")
+                    print("{0}@{1:<40} error".format(ret.user_name, ret.server_name))
+                    print("   {0}".format(ret.err))
+                    print("")
+                continue
+            l.debug('done with %s@%s', ret.user_name, ret.server_name)
         if errors_occured:
             print('')
             print('Syncing some servers failed.  See above.')

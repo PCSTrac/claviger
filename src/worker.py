@@ -16,8 +16,9 @@ import claviger.ssh
 JobReturn = collections.namedtuple('JobReturn', ('server_name', 'user_name', 'ok', 'err'))
 
 
-def sync_user_for_server(server, user):
+def sync_user_for_server(server_and_user):
     try:
+        server, user = server_and_user
         ssh = claviger.ssh.SSH()
 
         user_name = user['name']
