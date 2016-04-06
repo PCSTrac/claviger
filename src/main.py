@@ -68,7 +68,7 @@ class Claviger(object):
         for ret in the_map(claviger.worker.sync_user_for_server, jobs):
             if not ret.ok:
                 errors_occured = True
-                if isinstance(ret.err, claviger.scp.HostKeyVerificationFailed):
+                if isinstance(ret.err, claviger.ssh.HostKeyVerificationFailed):
                     print("{0:<40} host key verification failed".format(ret.server_name))
                 else:
                     print("")
