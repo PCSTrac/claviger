@@ -59,8 +59,8 @@ class Claviger(object):
 
         global_changes = False
         errors_occured = False
-        for server in self.cfg['servers']:
-            if server['abstract']:
+        for server_name, server in six.iteritems(self.cfg['servers']):
+            if server['abstract'] == True:
                 continue
             for user in server['users']:
                 for ret in the_map(claviger.worker.check_server, claviger.worker.Job(server=server, user=user)):
