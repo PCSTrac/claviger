@@ -121,6 +121,15 @@ class SSHSession(object):
         if stderr != '':
             raise interpret_ssh_error(returncode, stderr, stdout)
 
+    def set_user_default_password(self, user_name, default_password_hash):
+        stdout, stderr, returncode = self._ssh('cat /etc/shadow | grep "{0}" | awk -F ":" {\'print $2}\''.format(user_name))[0]
+            raise interpret_ssh_error(returncode, stderr, stdout)
+        if stdout == '!!':
+            # the password was never set, so set it to the default_password_hash provided
+            stdout, stderr, returncode = self._ssh('usermod -p "{0}"'.format(default_password_hash))
+            if stderr != '':
+                raise interpret_ssh_error(returncode, stderr, stdout)
+
     def sync_user_keys(self, user_name, keys):
         try:
             old_auth_keys_file_data = self.get_file(self._authorized_keys_path(user_name))
