@@ -1,12 +1,12 @@
 claviger
 ********
 
-`claviger` manages users and ssh keys across multiple servers.
+claviger manages users and ssh keys across multiple servers.
 
 Quick introduction
 ==================
 
-Tell `claviger` which keys you want to put on which server
+Tell claviger which keys you want to put on which server
 by creating a `~/.claviger` file.  An example
 
 ```yaml
@@ -34,12 +34,12 @@ servers:
       - username2
 ```
 
-Then run ``claviger``.
+Then run `claviger`.
 
 Installation
 ============
 
-To install ``claviger``, simply run::
+To install claviger, simply run:
 
     pip install git+ssh://git@github.com:PCSTrac/claviger.git
 
