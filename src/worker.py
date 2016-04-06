@@ -11,24 +11,21 @@ import collections
 
 import claviger.ssh
 
-# arguments send by the main process
-Job = collections.namedtuple('Job', ('server', 'user'))
 
 # this is what we return
 JobReturn = collections.namedtuple('JobReturn', ('server_name', 'user_name', 'ok', 'err'))
 
 
-def sync_user_for_server(job):
+def sync_user_for_server(server, user):
     try:
         ssh = claviger.ssh.SSH()
-        server = job.server
 
-        user_name = job.user['name']
-        uid = job.user['uid']
-        main_group = job.user['group']
-        enabled = job.user['enabled']
-        additional_groups = job.user['additional_groups']
-        keys = job.user['keys']
+        user_name = user['name']
+        uid = user['uid']
+        main_group = user['group']
+        enabled = user['enabled']
+        additional_groups = user['additional_groups']
+        keys = user['keys']
 
         conn = ssh.connect(server['hostname'], server['port'], server['ssh_user'])
 
