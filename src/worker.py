@@ -9,24 +9,45 @@ import difflib
 import traceback
 import collections
 
-import six
-
-import claviger.scp
-import claviger.authorized_keys
+import claviger.ssh
 
 # arguments send by the main process
-Job = collections.namedtuple('Job',
-                ('server', 'users', 'dry_run', 'no_diff'))
-Job2 = collections.namedtuple('Job',
-                ('server', 'user_name', 'user', 'dry_run', 'no_diff'))
+Job = collections.namedtuple('Job', ('server', 'user_name', 'user_obj'))
 
 # this is what we return
-JobReturn = collections.namedtuple('JobReturn',
-                ('server_name', 'ok', 'result'))
-# if everything is ok, the result field is of the following type ...
-JobResult = collections.namedtuple('JobResult',
-                ('n_keys_added', 'n_keys_removed', 'n_keys_ignored'))
-# ... otherwise it is an exception
+JobReturn = collections.namedtuple('JobReturn', ('server_name', 'user_name', 'ok', 'err'))
+
+
+def sync_user_for_server(job):
+    try:
+        ssh = claviger.ssh.SSH()
+        server = job.server
+
+        user_name = job.user_name
+        uid = job.user['uid']
+        main_group = job.user['group']
+        enabled = job.user['enabled']
+        additional_groups = job.user['additional_groups']
+        keys = job.user['keys']
+
+        conn = ssh.connect(server['hostname'], server['port'], server['ssh_user'])
+
+        # First sync the user's account and attributes
+        conn.sync_user_account(user_name, uid, main_group, alternate_groups, enabled)
+        # Then sync their keys
+        conn.sync_user_keys(user_name, keys)
+        # Finally, fix permissions on the files
+        conn.user_set_permissions(user_name)
+
+        return JobReturn(server_name=server['name'], user_name=user_name, ok=True, err='')
+    except claviger.ssh.SSHError as e:
+        return JobReturn(server_name=server['name'], user_name=user_name, ok=False, err=e)
+    except Exception as e:
+        # multiprocessing does not pass the stacktrace to the parent process.
+        #   ( see http://stackoverflow.com/questions/6126007 )
+        # Thus we force the stacktrace in the message.
+        raise Exception(''.join(traceback.format_exception(*sys.exc_info())))
+
 
 def check_server(job):
     number_users_added = 0
@@ -41,39 +62,3 @@ def check_server(job):
                     result=JobResult(n_keys_added=number_users_added,
                                      n_keys_removed=0,
                                      n_keys_ignored=0))
-
-
-def check_server_for_user(job):
-    try:
-        scp = claviger.scp.SCP()
-        n_keys_removed = 0
-        n_keys_added = 0
-        n_keys_ignored = 0
-        server = job.server
-        user_name = job.user_name
-        user_obj = job.user
-        conn = scp.connect(server['hostname'], server['port'],
-                                    server['ssh_user'])
-
-        # First make the user if they don't exist
-        conn.user_make_if_not_present(user_name)
-        # Then pull the current authorized_keys
-        original_raw_ak = conn.get(user_name)
-        ak = claviger.authorized_keys.parse(original_raw_ak)
-
-        key = job.user['key']
-        # TODO update comment/options
-        if not ak.contains(key['key']):
-            n_keys_added += 1
-            ak.add(key['options'], key['keytype'], key['key'], key['comment'])
-
-        raw_ak = six.binary_type(ak)
-        conn.put(user_name, raw_ak)
-        conn.user_set_permissions(user_name)
-    except claviger.scp.SCPError as e:
-        return JobReturn(server_name=server['name'], ok=False, result=e)
-    except Exception as e:
-        # multiprocessing does not pass the stacktrace to the parent process.
-        #   ( see http://stackoverflow.com/questions/6126007 )
-        # Thus we force the stacktrace in the message.
-        raise Exception(''.join(traceback.format_exception(*sys.exc_info())))
