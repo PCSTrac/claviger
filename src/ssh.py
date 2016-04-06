@@ -122,7 +122,7 @@ class SSHSession(object):
         ak = claviger.authorized_keys.parse('')
         for key in keys:
             if not ak.contains(key['key']):
-            ak.add(key['options'], key['keytype'], key['key'], key['comment'])
+                ak.add(key['options'], key['keytype'], key['key'], key['comment'])
         authorized_keys_file_data = six.binary_type(ak)
 
         if old_auth_keys_file_data != authorized_keys_file_data:
