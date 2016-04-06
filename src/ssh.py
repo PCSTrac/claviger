@@ -3,6 +3,9 @@ import logging
 import tempfile
 import subprocess
 
+import six
+import claviger.authorized_keys
+
 l = logging.getLogger(__name__)
 
 class SSH(object):
@@ -91,7 +94,7 @@ class SSHSession(object):
             user_add_mod = 'usermod'
 
         shell = '/bin/bash'
-        if enabled == false:
+        if enabled == False:
             shell = '/bin/false'
 
         alt_groups_flag = ''
@@ -108,10 +111,17 @@ class SSHSession(object):
         if returncode != 0;
             raise interpret_ssh_error(returncode, stderr, stdout)
 
-    def sync_user_key(self, user_name, authorized_keys_file_data):
+    def sync_user_key(self, user_name, keys):
         try:
             old_auth_keys_file_data = self.get_file(self._authorized_keys_path())
         except SSHError:
-            pass
+            old_auth_keys_file_data = ''
+
+        ak = claviger.authorized_keys.parse('')
+        for key in keys:
+            if not ak.contains(key['key'])
+            ak.add(key['options'], key['keytype'], key['key'], key['comment'])
+        authorized_keys_file_data = six.binary_type(ak)
+
         if old_auth_keys_file_data != authorized_keys_file_data:
             self.put_file(self._authorized_keys_path(), authorized_keys_file_data)
