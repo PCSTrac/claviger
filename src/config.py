@@ -5,7 +5,6 @@ import os.path
 import textwrap
 import itertools
 import collections
-from pprint import pprint
 
 import six
 import tarjan
@@ -103,7 +102,6 @@ def load(path):
             raise ConfigurationError("Duplicate server name {0}".format(server_name))
         new_servers[server_key] = server
     cfg['servers'] = new_servers
-    pprint(new_servers)
 
     l.debug('resolving server stanza inheritance...')
     # create dependancy graph and use Tarjan's algorithm to find a possible
