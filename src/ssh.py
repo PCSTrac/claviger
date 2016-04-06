@@ -35,8 +35,11 @@ class SSHSession(object):
         self.port = port if port else 22
         self.ssh_user = ssh_user
 
+    def _fix_path_for_windows(self, path):
+        return path.replace('\\', '/').replace('c:', '/c').replace('b:', '/b')
+
     def _authorized_keys_path(self, user_name):
-        return os.path.join('~' + user_name, '.ssh', 'authorized_keys').replace('\\', '/')
+        return self._fix_path_for_windows(os.path.join('~' + user_name, '.ssh', 'authorized_keys'))
 
     def _ssh(self, cmdToRun):
         cmd = ['ssh', '{0}@{1}'.format(self.ssh_user, self.hostname), cmdToRun]
@@ -50,7 +53,7 @@ class SSHSession(object):
         return stdout, stderr, p.returncode
 
     def _scp(self, src, target):
-        cmd = ['scp', '-S', '-B', '-P', str(self.port), src, target]
+        cmd = ['scp', '-B', '-P', str(self.port), src, target]
         l.debug('Copying file from %s to %s using SCP', src, target)
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = [x.decode('utf-8') for x in p.communicate()]
@@ -65,7 +68,7 @@ class SSHSession(object):
 
     def get_file(self, file_path_to_get):
         with tempfile.NamedTemporaryFile() as tempf:
-            stdout, stderr, returncode = self._scp('{0}@{1}:{2}'.format(self.ssh_user, self.hostname, file_path_to_get), tempf.name.replace('C:', '/c').replace('\\', '/'))
+            stdout, stderr, returncode = self._scp('{0}@{1}:{2}'.format(self.ssh_user, self.hostname, file_path_to_get), self._fix_path_for_windows(tempf.name))
             if returncode != 0:
                 raise interpret_ssh_error(returncode, stderr, stdout)
             return tempf.read()
@@ -74,7 +77,7 @@ class SSHSession(object):
         with tempfile.NamedTemporaryFile() as tempf:
             tempf.write(file_data)
             tempf.flush()
-            stdout, stderr, returncode = self._scp(tempf.name.replace('C:', '/c').replace('\\', '/'), '{0}@{1}:{2}'.format(self.ssh_user, self.hostname, file_path_to_put))
+            stdout, stderr, returncode = self._scp(self._fix_path_for_windows(tempf.name), '{0}@{1}:{2}'.format(self.ssh_user, self.hostname, file_path_to_put))
             if returncode != 0:
                 raise interpret_ssh_error(returncode, stderr, stdout)
 
