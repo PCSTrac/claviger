@@ -61,7 +61,7 @@ class SSHSession(object):
         return stdout, stderr, p.returncode
 
     def _user_exists(self, user_name):
-        return self.run("getent passwd " + user_name)[2] == 0
+        return self._ssh("getent passwd " + user_name)[2] == 0
 
     def get_file(self, file_path_to_get):
         with tempfile.NamedTemporaryFile() as tempf:
@@ -84,7 +84,7 @@ class SSHSession(object):
         chmod 700 /home/{0}/.ssh/authorized_keys;
         chown -R {0}:{1} /home/{0}/.ssh
         '''.format(user_name, user_group)
-        stdout, stderr, returncode = self.run(cmd)
+        stdout, stderr, returncode = self._ssh(cmd)
         if returncode != 0:
             raise interpret_ssh_error(returncode, stderr, stdout)
 
@@ -109,7 +109,7 @@ class SSHSession(object):
             {0} -s {1} -u {2} -g {3} -G{4} {5};
             mkdir -p /home/{5}/.ssh;
         '''.format(user_add_mod, shell, uid, main_group, alt_groups_flag, user_name)
-        stdout, stderr, returncode = self.run(cmd)
+        stdout, stderr, returncode = self._ssh(cmd)
         if returncode != 0:
             raise interpret_ssh_error(returncode, stderr, stdout)
 
