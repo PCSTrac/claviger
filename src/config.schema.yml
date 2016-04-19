@@ -32,6 +32,16 @@ properties:
           type: array
           items:
             type: string
+        files:
+          type: array
+          items:
+            type: object
+            properties:
+              remote_filepath: { type: string }
+              local_filepath: { type: string }
+              owner: { type: string }
+              group: { type: string }
+              permissions: { type: string }
         like: { type: string }
       additionalProperties: false
 additionalProperties: false
