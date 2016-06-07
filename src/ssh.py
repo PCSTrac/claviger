@@ -67,20 +67,20 @@ class SSHSession(object):
         return self._ssh("getent passwd " + user_name)[2] == 0
 
     def get_file(self, file_path_to_get):
-        stdout, stderr, returncode = self._ssh('sudo cat {0}'.format(file_path_to_get))
+        stdout, stderr, returncode = self._ssh('cat {0}'.format(file_path_to_get))
         if stderr != '':
             raise interpret_ssh_error(returncode, stderr, stdout)
         return stdout
 
     def put_file(self, file_path_to_put, file_data):
-        stdout, stderr, returncode = self._ssh('sudo echo "{0}" > {1}'.format(file_data, file_path_to_put))
+        stdout, stderr, returncode = self._ssh('echo "{0}" > {1}'.format(file_data, file_path_to_put))
         if stderr != '':
             raise interpret_ssh_error(returncode, stderr, stdout)
 
     def set_user_permissions(self, user_name, user_group):
         cmd = '''
         chmod 700 /home/{0}/.ssh;
-        chmod 700 /home/{0}/.ssh/authorized_keys;
+        chmod 600 /home/{0}/.ssh/authorized_keys;
         chown -R {0}:{1} /home/{0}/.ssh
         '''.format(user_name, user_group)
         stdout, stderr, returncode = self._ssh(cmd)
@@ -123,7 +123,7 @@ class SSHSession(object):
 
     def set_user_default_password(self, user_name, default_password_hash):
         stdout, stderr, returncode = self._ssh('cat /etc/shadow | grep "{0}" | awk -F ":" {\'print $2}\''.format(user_name))[0]
-            raise interpret_ssh_error(returncode, stderr, stdout)
+        # raise interpret_ssh_error(returncode, stderr, stdout)
         if stdout == '!!':
             # the password was never set, so set it to the default_password_hash provided
             stdout, stderr, returncode = self._ssh('usermod -p "{0}"'.format(default_password_hash))
